@@ -5,13 +5,15 @@ import './App.css'
 import Signup from './components/Signup'
 import StartPage from './components/StartPage'
 import Chatbot from './components/Chatbot'
+import FaceAuth from './components/FaceAuth'
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
      //<StartPage/>
-     <Chatbot />
+     //<Chatbot />
+     <FaceAuth />
   )
 }
 
