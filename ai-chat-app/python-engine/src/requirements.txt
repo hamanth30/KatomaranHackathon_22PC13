@@ -1,0 +1,8 @@
+Flask
+Flask-SocketIO
+numpy
+pandas
+langchain
+faiss-cpu
+openai
+pymongo

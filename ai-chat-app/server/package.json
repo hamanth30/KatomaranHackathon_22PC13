@@ -1,0 +1,22 @@
+{
+  "name": "ai-chat-app",
+  "version": "1.0.0",
+  "description": "A chat application with AI functionality using WebSockets, Node.js, and a Python RAG engine.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.10.9",
+    "ws": "^7.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}
