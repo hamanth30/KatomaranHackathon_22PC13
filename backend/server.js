@@ -1,12 +1,14 @@
 // server.js
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs');
-const { connectDB } = require('./config/db.config');
-const routes = require('./routes');
-const errorMiddleware = require('./middleware/error.middleware');
-const logger = require('./utils/logger');
+import dotenv from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import fs from 'fs';
+import { connectDB } from './config/db.config.js';
+import routes from './routes/index.js';
+import errorMiddleware from './middlewares/error.middleware.js';
+import logger from './utils/logger.js';
+
+dotenv.config();
 
 // Initialize express app
 const app = express();
@@ -22,8 +24,17 @@ dirs.forEach(dir => {
 });
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5174', // Updated Vite's port
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve uploaded files
+app.use('/uploads', express.static('uploads'));
 
 // API Routes
 app.use('/api', routes);

@@ -1,0 +1,61 @@
+Registration Records
+
+ID: 1001
+Name: John Smith
+Email: john.smith@example.com
+Registration Date: 2023-01-15
+Status: Active
+
+ID: 1002
+Name: Emily Johnson
+Email: emily.j@example.com
+Registration Date: 2023-02-03
+Status: Active
+
+ID: 1003
+Name: Michael Brown
+Email: michael.b@example.com
+Registration Date: 2023-02-17
+Status: Inactive
+
+ID: 1004
+Name: Sarah Williams
+Email: sarah.w@example.com
+Registration Date: 2023-03-22
+Status: Active
+
+ID: 1005
+Name: David Miller
+Email: david.m@example.com
+Registration Date: 2023-04-05
+Status: Active
+
+ID: 1006
+Name: Jessica Davis
+Email: jessica.d@example.com
+Registration Date: 2023-05-11
+Status: Inactive
+
+ID: 1007
+Name: Robert Wilson
+Email: robert.w@example.com
+Registration Date: 2023-06-08
+Status: Active
+
+ID: 1008
+Name: Jennifer Taylor
+Email: jennifer.t@example.com
+Registration Date: 2023-07-19
+Status: Active
+
+ID: 1009
+Name: Thomas Anderson
+Email: thomas.a@example.com
+Registration Date: 2023-08-24
+Status: Active
+
+ID: 1010
+Name: Lisa Martinez
+Email: lisa.m@example.com
+Registration Date: 2023-09-30
+Status: Active

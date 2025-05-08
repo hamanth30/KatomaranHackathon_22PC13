@@ -1,6 +1,6 @@
 // config/db.config.js
-const { MongoClient } = require('mongodb');
-const logger = require('../utils/logger');
+import { MongoClient } from 'mongodb';
+import logger from '../utils/logger.js';
 
 // Database configuration
 const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://hamanth:hamanth123@cluster0.wyhmy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
@@ -13,7 +13,7 @@ let db = null;
  * Connect to MongoDB
  * @returns {Promise<object>} MongoDB database instance
  */
-async function connectDB() {
+export async function connectDB() {
   try {
     const client = await MongoClient.connect(MONGO_URI);
     db = client.db(DB_NAME);
@@ -29,18 +29,15 @@ async function connectDB() {
  * Get database instance
  * @returns {object} MongoDB database instance
  */
-function getDB() {
+export function getDB() {
   if (!db) {
     throw new Error('Database not initialized. Call connectDB first.');
   }
   return db;
 }
 
-module.exports = {
-  connectDB,
-  getDB,
-  DB_NAME,
-  COLLECTIONS: {
-    FACES: 'faces'
-  }
+export const COLLECTIONS = {
+  FACES: 'faces'
 };
+
+export { DB_NAME };

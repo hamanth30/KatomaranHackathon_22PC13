@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Chatbot.css';
+import { useNavigate } from 'react-router-dom';
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([]);
@@ -40,6 +41,7 @@ const Chatbot = () => {
         height: '100vh',
       }}
     >
+      <div className="rounded-lg shadow-lg bg-white p-5 text-black font-bold text-xl">AI powered Chat assistant</div>
       <div className="chat-messages" style={{ padding: '10px' }}>
         {messages.map((msg, index) => (
           <div key={index} className={`chat ${msg.type === 'sent' ? 'chat-end' : 'chat-start'}`} style={{ margin: '10px' }}>

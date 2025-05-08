@@ -1,22 +1,15 @@
 // controllers/face.controller.js
-const fs = require('fs');
-const { getDB, COLLECTIONS } = require('../config/db.config');
-const { processFaceImage, recognizeFace } = require('../services/python.service');
-const { Binary, ObjectId } = require('mongodb');
-const logger = require('../utils/logger');
+import fs from 'fs';
+import { getDB, COLLECTIONS } from '../config/db.config.js';
+import { processFaceImage, recognizeFace as recognizeFaceService } from '../services/python.service.js';
+import { Binary, ObjectId } from 'mongodb';
+import logger from '../utils/logger.js';
 
-/**
- * Get all registered faces
- * @param {object} req - Express request object
- * @param {object} res - Express response object
- * @param {function} next - Express next middleware function
- */
-async function getAllFaces(req, res, next) {
+export async function getAllFaces(req, res, next) {
   try {
     const db = getDB();
     const collection = db.collection(COLLECTIONS.FACES);
     
-    // Only return name and ID, not the image data to keep response size small
     const faces = await collection.find({}, { 
       projection: { name: 1, created_at: 1 } 
     }).toArray();
@@ -28,13 +21,7 @@ async function getAllFaces(req, res, next) {
   }
 }
 
-/**
- * Register a new face
- * @param {object} req - Express request object
- * @param {object} res - Express response object
- * @param {function} next - Express next middleware function
- */
-async function registerFace(req, res, next) {
+export async function registerFace(req, res, next) {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No image uploaded' });
@@ -45,15 +32,15 @@ async function registerFace(req, res, next) {
       return res.status(400).json({ error: 'Name is required' });
     }
 
-    // Process the uploaded image
+    logger.info(`Processing face image for registration: ${req.file.path}`);
     const imagePath = req.file.path;
     const result = await processFaceImage(imagePath, name);
 
     if (!result.success) {
+      logger.error(`Face processing failed: ${result.message || 'Unknown error'}`);
       return res.status(400).json({ error: result.message || 'Failed to process face' });
     }
     
-    // Save to MongoDB
     const db = getDB();
     const collection = db.collection(COLLECTIONS.FACES);
     const faceBuffer = Buffer.from(result.face_data, 'base64');
@@ -72,10 +59,9 @@ async function registerFace(req, res, next) {
       userId: insertResult.insertedId
     });
   } catch (err) {
-    logger.error(`Error registering face: ${err.message}`);
+    logger.error(`Error registering face: ${err.stack}`);
     next(err);
   } finally {
-    // Clean up the uploaded file
     if (req.file) {
       fs.unlink(req.file.path, (err) => {
         if (err) logger.error(`Error deleting file: ${err.message}`);
@@ -84,45 +70,47 @@ async function registerFace(req, res, next) {
   }
 }
 
-/**
- * Recognize a face from an uploaded image
- * @param {object} req - Express request object
- * @param {object} res - Express response object
- * @param {function} next - Express next middleware function
- */
-async function recognizeFace(req, res, next) {
+export async function recognizeFace(req, res, next) {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No image uploaded' });
     }
 
+    logger.info(`Processing face image for recognition: ${req.file.path}`);
     const imagePath = req.file.path;
-    const result = await recognizeFace(imagePath);
     
-    if (result.success && result.matched) {
-      // Face is recognized
-      res.json({
-        status: 'recognized',
-        userId: result.userId,
-        message: 'Face recognized successfully'
-      });
-    } else if (result.success && !result.matched) {
-      // New face detected
-      res.json({
-        status: 'new_face',
-        message: 'New face detected'
-      });
-    } else {
-      res.status(400).json({
-        status: 'error',
-        message: result.message || 'Failed to process face'
-      });
+    try {
+      const result = await recognizeFaceService(imagePath);
+      logger.info(`Recognition result: ${JSON.stringify(result)}`);
+      
+      if (result.success && result.matched) {
+        res.json({
+          status: 'recognized',
+          userId: result.userId,
+          message: 'Face recognized successfully'
+        });
+      } else if (result.success && !result.matched) {
+        res.json({
+          status: 'new_face',
+          message: 'New face detected'
+        });
+      } else {
+        res.status(400).json({
+          status: 'error',
+          message: result.message || 'Failed to process face'
+        });
+      }
+    } catch (recognitionError) {
+      logger.error(`Face recognition error: ${recognitionError.stack}`);
+      throw recognitionError;
     }
   } catch (err) {
-    logger.error(`Error recognizing face: ${err.message}`);
-    next(err);
+    logger.error(`Error in face recognition endpoint: ${err.stack}`);
+    res.status(500).json({ 
+      error: 'Internal Server Error', 
+      message: `Failed to recognize face: ${err.message}` 
+    });
   } finally {
-    // Clean up the uploaded file
     if (req.file) {
       fs.unlink(req.file.path, (err) => {
         if (err) logger.error(`Error deleting file: ${err.message}`);
@@ -131,13 +119,7 @@ async function recognizeFace(req, res, next) {
   }
 }
 
-/**
- * Get a user by ID
- * @param {object} req - Express request object
- * @param {object} res - Express response object
- * @param {function} next - Express next middleware function
- */
-async function getUserById(req, res, next) {
+export async function getUserById(req, res, next) {
   try {
     const userId = req.params.id;
     if (!userId) {
@@ -162,10 +144,3 @@ async function getUserById(req, res, next) {
     next(err);
   }
 }
-
-module.exports = {
-  getAllFaces,
-  registerFace,
-  recognizeFace,
-  getUserById
-};

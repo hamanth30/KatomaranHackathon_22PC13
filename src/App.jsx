@@ -6,14 +6,21 @@ import Signup from './components/Signup'
 import StartPage from './components/StartPage'
 import Chatbot from './components/Chatbot'
 import FaceAuth from './components/FaceAuth'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
-     //<StartPage/>
-     //<Chatbot />
-     <FaceAuth />
+    <Router>
+    <Routes>
+      <Route path="/" element={<StartPage />} />
+      <Route path="/face-auth" element={<FaceAuth />} />
+      <Route path="/chatbot" element={<Chatbot />} />
+    </Routes>
+  </Router>
+  //<Chatbot />
+  //<FaceAuth/>
   )
 }
 

@@ -37,6 +37,6 @@ const logger = {
         console.debug(`[DEBUG] ${new Date().toISOString()} - ${message}`);
       }
     }
-  };
-  
-  module.exports = logger;
+};
+
+export default logger;

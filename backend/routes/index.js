@@ -1,10 +1,9 @@
-// routes/index.js
-const express = require('express');
-const faceRoutes = require('./face.routes');
+import express from 'express';
+import faceRoutes from './face.routes.js';
 
 const router = express.Router();
 
-// Register face-related routes
-router.use('/faces', faceRoutes);
+// Mount face-related routes under /face-auth
+router.use('/face-auth', faceRoutes);
 
-module.exports = router;
+export default router;

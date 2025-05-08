@@ -1,75 +1,99 @@
-// services/python.service.js
-const { spawn } = require('child_process');
-const logger = require('../utils/logger');
+import { spawn } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import logger from '../utils/logger.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
- * Execute a Python script and return the result
- * @param {string} scriptPath - Path to the Python script
- * @param {Array} args - Arguments to pass to the script
- * @returns {Promise<object>} - JSON result from the Python script
+ * Process face image using Python script
+ * @param {string} imagePath - Path to the image file
+ * @param {string} name - Name of the person
+ * @returns {Promise<object>} Processing result
  */
-async function executePythonScript(scriptPath, args = []) {
+export async function processFaceImage(imagePath, name) {
   return new Promise((resolve, reject) => {
-    const pythonProcess = spawn('python', [scriptPath, ...args]);
-    
+    const scriptPath = path.join(__dirname, '..', 'scripts', 'process_face.py');
+    const pythonProcess = spawn('python', [scriptPath, imagePath, name]);
+
     let result = '';
-    let errorOutput = '';
-    
+    let error = '';
+
     pythonProcess.stdout.on('data', (data) => {
       result += data.toString();
     });
-    
+
     pythonProcess.stderr.on('data', (data) => {
-      errorOutput += data.toString();
+      error += data.toString();
+      logger.error(`Python error: ${data.toString()}`);
     });
-    
+
     pythonProcess.on('close', (code) => {
       if (code !== 0) {
-        logger.error(`Python process exited with code ${code}: ${errorOutput}`);
-        return reject(new Error(`Python script failed with code ${code}: ${errorOutput}`));
+        logger.error(`Python process exited with code ${code}: ${error}`);
+        reject(new Error(`Failed to process face: ${error}`));
+        return;
       }
-      
+
       try {
-        const resultObj = JSON.parse(result);
-        return resolve(resultObj);
+        const processedResult = JSON.parse(result);
+        resolve({
+          success: true,
+          ...processedResult
+        });
       } catch (err) {
-        logger.error(`Error parsing Python result: ${err.message}`);
-        return reject(new Error(`Failed to parse Python output: ${err.message}`));
+        logger.error(`Failed to parse Python output: ${err.message}`);
+        reject(new Error('Failed to parse processing result'));
       }
     });
   });
 }
 
 /**
- * Process a face image
+ * Recognize face using Python script
  * @param {string} imagePath - Path to the image file
- * @param {string} name - Name to associate with the face
- * @returns {Promise<object>} - Processed face data
+ * @returns {Promise<object>} Recognition result
  */
-async function processFaceImage(imagePath, name) {
-  try {
-    return await executePythonScript('scripts/process_face.py', [imagePath, name]);
-  } catch (error) {
-    logger.error(`Error processing face image: ${error.message}`);
-    throw error;
-  }
-}
+export async function recognizeFace(imagePath) {
+  return new Promise((resolve, reject) => {
+    const scriptPath = path.join(__dirname, '..', 'scripts', 'recognize_face.py');
+    logger.info(`Running face recognition with script: ${scriptPath}`);
+    logger.info(`Image path: ${imagePath}`);
 
-/**
- * Recognize a face from an image
- * @param {string} imagePath - Path to the image file
- * @returns {Promise<object>} - Recognition result
- */
-async function recognizeFace(imagePath) {
-  try {
-    return await executePythonScript('scripts/recognize_face.py', [imagePath]);
-  } catch (error) {
-    logger.error(`Error recognizing face: ${error.message}`);
-    throw error;
-  }
-}
+    const pythonProcess = spawn('python', [scriptPath, imagePath]);
 
-module.exports = {
-  processFaceImage,
-  recognizeFace
-};
+    let result = '';
+    let error = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+      result += data.toString();
+      logger.info(`Python output: ${data.toString()}`);
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      error += data.toString();
+      logger.error(`Python error: ${data.toString()}`);
+    });
+
+    pythonProcess.on('close', (code) => {
+      if (code !== 0) {
+        logger.error(`Python process exited with code ${code}: ${error}`);
+        reject(new Error(`Failed to recognize face: ${error}`));
+        return;
+      }
+
+      try {
+        const recognitionResult = JSON.parse(result);
+        logger.info(`Recognition result: ${JSON.stringify(recognitionResult)}`);
+        resolve({
+          success: true,
+          ...recognitionResult
+        });
+      } catch (err) {
+        logger.error(`Failed to parse Python output: ${err.message}`);
+        reject(new Error('Failed to parse recognition result'));
+      }
+    });
+  });
+}
