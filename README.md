@@ -1,12 +1,34 @@
-# React + Vite
+This is a full stack web application that allows user to authenthenticate their face to register into it, to access the AI powered chat assistant
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Key features:
+ -- Used OpenCV DNN and res10_300x300_ssd_iter_140000.caffemodel models for face recognition
+ -- Used Gemini pro API to access data from registeration.txt (for prototype purposes) to answer the query from the text file
+ -- In frontend, I used 3 main pages: 
+        i. A Front Page
+        ii. A face authentication page that asks access for camera to capture the image of user and send it to Mongo DB to register as new user
+        iii. An AI assisted chat bot page to handle queries by accessing the database (But unable to integrate the RAG engine in front-end)
+ --In backend created 3 end points:
+    i.**Endpoint**: `/api/face-auth`
+    - **Method**: `POST`
+    - **Description**: Processes an uploaded image to detect and authenticate face.
 
-Currently, two official plugins are available:
+    ii.**Endpoint**: `/uploads`
+    - **Method**: `GET`
+    - **Description**: Serves uploaded files from the `uploads` directory.
+    
+    iii. /register to Accept an image file (captured from the frontend).Process the image to extract face data. Store the face data and user information in the database.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+I have added Screen shots for working of the application:
 
-## Expanding the ESLint configuration
+![alt text](image.png)
+![alt text](image-1.png)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+File Structure:
+i. backend folder: All the backend code is present
+ii. All frontend code is present in the root directory
+iii. face auth folder: Contains the py file for face authentication implementation
+iv. chat bot folder: Contains the RAG engine to process queries using Gemini API, Install packages inside requirements.txt folder
+
+                                THANK YOU                              
+
+This project is a part of a hackathon run by https://katomaran.com
